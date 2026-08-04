@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rúbrica APA 7 para revisión de protocolos</title>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --vino:#7b1e3a;--vino2:#9f3154;--oro:#d6a84b;--fondo:#f4f6f9;
+  --texto:#202633;--muted:#667085;--linea:#d8dee8;--blanco:#fff;
+  --verde:#166534;--amarillo:#9a6700;--rojo:#b42318;--azul:#175cd3;
+  --sombra:0 10px 28px rgba(31,41,55,.08)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(#f8fafc,#edf1f6);color:var(--texto)}
+.container{max-width:1240px;margin:auto;padding:22px}
+.hero{background:linear-gradient(135deg,var(--vino),var(--vino2));color:#fff;border-radius:22px;padding:28px;box-shadow:var(--sombra);margin-bottom:18px}
+.hero h1{margin:0 0 8px;font-size:clamp(1.55rem,3vw,2.35rem)}
+.hero p{margin:0;line-height:1.55;opacity:.96}
+.card{background:var(--blanco);border:1px solid var(--linea);border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:var(--sombra)}
+h2{margin:0 0 15px;color:var(--vino);font-size:1.23rem}
+h3{margin:0 0 8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+label{display:block;font-weight:700;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;color:var(--texto);background:#fff}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:3px solid rgba(123,30,58,.12);border-color:var(--vino)}
+.hint{font-size:.88rem;color:var(--muted);line-height:1.45;margin-top:5px}
+.notice{background:#eff6ff;border-left:5px solid var(--azul);color:#173b7a;border-radius:10px;padding:13px 14px;line-height:1.5}
+.warning{background:#fffaeb;border-left-color:var(--amarillo);color:#6b4d00}
+.counter{font-size:.88rem;margin-top:5px;font-weight:800}
+.counter.ok{color:var(--verde)} .counter.bad{color:var(--rojo)}
+.criterion{border:1px solid var(--linea);border-radius:17px;margin:16px 0;background:#fcfdff;overflow:hidden}
+.criterion-head{padding:17px;background:linear-gradient(90deg,#fff7fa,#fff);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;border-bottom:1px solid var(--linea)}
+.criterion-title{font-size:1.05rem;font-weight:900;color:var(--vino)}
+.badge{white-space:nowrap;border-radius:999px;padding:7px 11px;background:var(--vino);color:#fff;font-weight:900}
+.criterion-body{padding:17px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:13px}
+.info-box{border:1px solid var(--linea);border-radius:12px;padding:13px;background:#fff}
+.info-box h4{margin:0 0 8px;color:#344054}
+.info-box ul{margin:0;padding-left:20px}
+.info-box li{margin:5px 0;line-height:1.35}
+.word-range{display:inline-block;background:#ecfdf3;color:#166534;border-radius:999px;padding:5px 9px;font-weight:800;margin-top:5px}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px}
+.check{display:flex;gap:8px;align-items:flex-start;background:#f8fafc;border:1px solid #e5e7eb;border-radius:9px;padding:9px}
+.check input{width:auto;margin-top:2px}
+.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
+.level{border:1px solid var(--linea);border-radius:12px;padding:12px;cursor:pointer;background:#fff;min-height:126px;transition:.15s}
+.level:hover{transform:translateY(-1px);border-color:var(--vino)}
+.level.selected{border-color:var(--vino);box-shadow:0 0 0 3px rgba(123,30,58,.12);background:#fff7fa}
+.level input{width:auto;margin-right:6px}
+.level strong{display:block;margin-bottom:6px}
+.level small{display:block;color:var(--muted);line-height:1.35}
+.comment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.summary{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+.score-panel{background:#111827;color:#fff;border-radius:18px;padding:22px}
+.score-number{font-size:3.15rem;font-weight:950;line-height:1}
+.classification{font-size:1.25rem;font-weight:900;margin-top:8px}
+.progress{height:14px;background:#334155;border-radius:999px;overflow:hidden;margin:14px 0}
+.progress div{height:100%;width:0;background:#fbbf24;transition:.25s}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+button{border:0;border-radius:11px;padding:12px 16px;font:inherit;font-weight:850;cursor:pointer}
+.primary{background:var(--vino);color:#fff}.success{background:var(--verde);color:#fff}.dark{background:#111827;color:#fff}.light{background:#e5e7eb;color:#111827}
+.status{font-weight:800;margin-top:10px}
+.footer{text-align:center;color:var(--muted);font-size:.84rem;padding:14px}
+@media(max-width:900px){.grid,.grid3,.summary,.info-grid,.comment-grid,.checks,.levels{grid-template-columns:1fr}.container{padding:11px}}
+@media print{.hero,.actions,.notice,.footer{display:none!important}.card,.criterion{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<section class="hero">
+  <h1>Rúbrica didáctica para revisión de protocolos</h1>
+  <p>Instrumento de evaluación entre pares con criterios académicos, preguntas orientadoras, lista de cotejo, formato APA 7, calificación automática y reporte descargable en PDF.</p>
+</section>
+
+<section class="card">
+  <h2>1. Datos del alumno revisor y del protocolo</h2>
+  <div class="grid3">
+    <div><label>Nombre del alumno revisor</label><input id="reviewerName" placeholder="Nombre completo"></div>
+    <div><label>Código o matrícula del revisor</label><input id="reviewerCode" placeholder="Código"></div>
+    <div><label>Correo institucional del revisor</label><input id="reviewerEmail" type="email" placeholder="correo@institucion.mx"></div>
+    <div><label>Nombre del alumno evaluado</label><input id="reviewedName" placeholder="Nombre completo"></div>
+    <div><label>Código o matrícula del evaluado</label><input id="reviewedCode" placeholder="Código"></div>
+    <div><label>Director o asesor del protocolo</label><input id="advisor" placeholder="Nombre completo"></div>
+    <div><label>Grupo y ciclo escolar</label><input id="group" placeholder="Ej. 2026B, Grupo A"></div>
+    <div><label>Línea de investigación</label><input id="researchLine" placeholder="Nombre de la línea"></div>
+    <div><label>Fecha de revisión</label><input id="date" type="date"></div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>2. Modalidad y título provisional</h2>
+  <div class="grid">
+    <div>
+      <label>Modalidad de titulación</label>
+      <select id="modality">
+        <option value="">Selecciona una modalidad</option>
+        <option value="tesis">Tesis</option>
+        <option value="articulo">Artículo de investigación</option>
+        <option value="caso">Reporte de caso o experiencia profesional</option>
+      </select>
+      <div class="hint">Los criterios mostrarán orientaciones específicas para la modalidad seleccionada.</div>
+    </div>
+    <div>
+      <label>Título provisional del protocolo</label>
+      <textarea id="projectTitle" maxlength="300" placeholder="Máximo 25 palabras. Debe expresar qué se estudiará, sobre quién o qué, y en qué contexto."></textarea>
+      <div id="titleCounter" class="counter">0 de 25 palabras</div>
+    </div>
+  </div>
+  <div id="modalityInfo" class="notice" style="margin-top:14px">Selecciona una modalidad para iniciar la evaluación.</div>
+</section>
+
+<section class="card">
+  <h2>3. Indicaciones para realizar la revisión</h2>
+  <div class="notice">
+    Lee el protocolo completo antes de calificar. En cada criterio: revisa qué debe incluir, responde mentalmente las preguntas guía, marca la lista de cotejo, selecciona un nivel de desempeño y redacta una observación que explique qué cumple y qué debe mejorar.
+  </div>
+  <div class="notice warning" style="margin-top:10px">
+    Los rangos de palabras son orientativos para esta actividad académica. Las exigencias particulares del programa, modalidad o convocatoria institucional prevalecen sobre estos rangos.
+  </div>
+</section>
+
+<section class="card">
+  <h2>4. Rúbrica de evaluación</h2>
+  <div id="rubric"></div>
+</section>
+
+<section class="card">
+  <h2>5. Retroalimentación global</h2>
+  <div class="grid">
+    <div><label>Fortalezas principales</label><textarea id="strengths" placeholder="Describe al menos dos fortalezas concretas del protocolo."></textarea></div>
+    <div><label>Aspectos prioritarios por mejorar</label><textarea id="improvements" placeholder="Indica los cambios más importantes que debe realizar el autor."></textarea></div>
+    <div><label>Recomendaciones específicas</label><textarea id="recommendations" placeholder="Propón acciones claras, viables y respetuosas."></textarea></div>
+    <div><label>Observaciones éticas, de citación o uso de IA</label><textarea id="ethical" placeholder="Señala problemas de atribución, confidencialidad, consentimiento, plagio o uso no declarado de IA."></textarea></div>
+  </div>
+</section>
+
+<section class="card summary">
+  <div>
+    <h2>6. Resultado de la revisión</h2>
+    <div class="notice">El puntaje se calcula sobre 100. Para generar el PDF deben estar contestados todos los criterios y capturados los datos esenciales.</div>
+    <div id="completion" class="status">Criterios calificados: 0 de 0</div>
+    <div id="checkCompletion" class="status">Elementos de cotejo marcados: 0 de 0</div>
+    <div class="actions">
+      <button class="primary" onclick="calculate(true)">Calcular resultado</button>
+      <button class="success" onclick="downloadPDF()">Descargar PDF</button>
+      <button class="light" onclick="saveDraft()">Guardar borrador</button>
+      <button class="dark" onclick="resetAll()">Limpiar formulario</button>
+    </div>
+  </div>
+  <div class="score-panel">
+    <div class="score-number"><span id="score">0</span>/100</div>
+    <div class="classification" id="classification">Sin evaluar</div>
+    <div class="progress"><div id="bar"></div></div>
+    <div>90–100: Excelente</div>
+    <div>80–89: Satisfactorio</div>
+    <div>70–79: Requiere ajustes</div>
+    <div>Menos de 70: Insuficiente</div>
+  </div>
+</section>
+
+<div class="footer">Instrumento de revisión por pares · Protocolo de titulación · APA 7</div>
+</div>
+
+<script>
+const modalities={
+  tesis:{
+    label:"Tesis",
+    info:"Debe demostrar una investigación sistemática, con problema claramente delimitado, fundamentación teórica suficiente, metodología rigurosa y una aportación académica o aplicada identificable.",
+    special:"Comprueba que el protocolo explique el aporte esperado de la tesis y la forma en que se generará conocimiento."
+  },
+  articulo:{
+    label:"Artículo de investigación",
+    info:"Debe plantear una contribución concreta y publicable, con pregunta específica, metodología viable, resultados esperados y posible audiencia o revista académica.",
+    special:"Comprueba que el proyecto pueda convertirse en un artículo con estructura académica y extensión compatible con una publicación científica."
+  },
+  caso:{
+    label:"Reporte de caso o experiencia profesional",
+    info:"Debe documentar y analizar sistemáticamente un caso real, con evidencia verificable, marco conceptual, metodología de análisis, reflexión crítica y aportes profesionales.",
+    special:"Comprueba que el caso esté delimitado, cuente con evidencias y permita extraer aprendizajes transferibles."
+  }
+};
+
+const levels=[
+  {v:4,name:"Excelente",text:"Cumple todos o casi todos los elementos; presenta claridad, coherencia, sustento y precisión. No requiere cambios sustantivos."},
+  {v:3,name:"Satisfactorio",text:"Cumple los elementos esenciales, pero requiere ajustes menores de precisión, integración, redacción o formato."},
+  {v:2,name:"En proceso",text:"Cumple parcialmente. Presenta vacíos, inconsistencias, escasa evidencia o falta de congruencia."},
+  {v:1,name:"Insuficiente",text:"No cumple los elementos indispensables o requiere una reformulación importante."}
+];
+
+const criteria=[
+{
+ id:"title",name:"Título del proyecto",points:5,words:"Máximo 25 palabras",
+ description:"Debe ser claro, específico, informativo y congruente con el contenido real del estudio.",
+ include:["Tema u objeto de estudio","Variable, fenómeno o categoría principal","Población, unidad de análisis o tipo de bien, cuando sea pertinente","Contexto territorial o institucional, cuando ayude a delimitar","Redacción directa, sin palabras innecesarias"],
+ questions:["¿Qué se investigará?","¿Sobre quién, qué unidad o qué fenómeno?","¿En qué contexto o lugar?","¿El título coincide con el problema y el objetivo general?"],
+ checks:["Contiene 25 palabras o menos","Identifica el objeto o fenómeno de estudio","Es específico y comprensible","Evita abreviaturas y siglas innecesarias","No utiliza comillas ni punto final","No promete resultados que el estudio aún no demuestra","Presenta ortografía y sintaxis correctas"],
+ apa:["Se recomienda un título conciso y descriptivo","Debe escribirse de forma consistente con la portada institucional","Evitar fórmulas, abreviaturas y palabras redundantes cuando no sean indispensables"]
+},
+{
+ id:"problem",name:"Planteamiento del problema",points:15,words:"700 a 1,200 palabras sugeridas",
+ description:"Expone la situación problemática, la evidencia que demuestra su existencia, su delimitación y el vacío que justifica investigar.",
+ include:["Contexto general y particular","Antecedentes académicos y profesionales","Datos, indicadores o evidencias verificables","Descripción de causas, manifestaciones o consecuencias","Delimitación temporal, espacial, conceptual y poblacional","Vacío de conocimiento o necesidad profesional","Cierre que conduzca a la pregunta de investigación"],
+ questions:["¿Qué ocurre y cómo se manifiesta?","¿A quién o a qué afecta?","¿Dónde y durante qué periodo ocurre?","¿Qué evidencia demuestra que existe el problema?","¿Qué se sabe hasta ahora?","¿Qué falta por explicar, analizar o resolver?","¿Por qué es pertinente investigarlo?"],
+ checks:["Define claramente el problema central","Presenta antecedentes pertinentes","Incluye datos o evidencias verificables","Distingue hechos de opiniones","Delimita tiempo, espacio y unidad de análisis","Identifica un vacío de conocimiento o necesidad aplicada","Conduce lógicamente a la pregunta de investigación","Cada afirmación relevante cuenta con respaldo o fuente"],
+ apa:["Usa citas autor-fecha para ideas, datos y antecedentes","Diferencia citas textuales de paráfrasis","Incluye página o párrafo en citas textuales","Prioriza fuentes académicas y oficiales","Evita fuentes sin autoría o trazabilidad"]
+},
+{
+ id:"question",name:"Pregunta de investigación",points:5,words:"Una pregunta principal, clara y delimitada",
+ description:"Expresa aquello que el estudio pretende responder y mantiene congruencia con el problema, objetivo y metodología.",
+ include:["Fenómeno, variables o categorías","Unidad de análisis o población","Contexto o delimitación necesaria","Relación que se busca comprender, comparar, estimar o explicar"],
+ questions:["¿Qué desea conocer el estudio?","¿La pregunta puede responderse con datos o evidencia?","¿Está delimitada?","¿Es congruente con el objetivo general?","¿La metodología propuesta permitirá responderla?"],
+ checks:["Está redactada como pregunta","No se responde únicamente con sí o no","Es clara y sin ambigüedades","Es viable en tiempo y recursos","Es investigable y delimitada","Coincide con el problema y el objetivo general"],
+ apa:["Mantiene redacción académica, precisa y sin expresiones coloquiales","Usa términos definidos de forma consistente en todo el protocolo"]
+},
+{
+ id:"justification",name:"Justificación",points:10,words:"500 a 800 palabras sugeridas",
+ description:"Argumenta por qué el estudio debe realizarse, quiénes se beneficiarán y cuál será su aportación.",
+ include:["Relevancia académica o científica","Relevancia social o profesional","Utilidad práctica o institucional","Posible aportación metodológica","Beneficiarios directos e indirectos","Viabilidad y oportunidad del estudio"],
+ questions:["¿Por qué vale la pena realizar el estudio?","¿Qué aportará al campo de conocimiento o a la práctica profesional?","¿Quiénes se beneficiarán y de qué manera?","¿Qué decisiones, procesos o problemas puede mejorar?","¿Por qué es pertinente realizarlo ahora?"],
+ checks:["Explica la relevancia del estudio","Identifica aportaciones concretas","Señala beneficiarios","Distingue importancia de conveniencia personal","Presenta argumentos respaldados","Explica la utilidad de los resultados","Es congruente con el problema y los objetivos"],
+ apa:["Sustenta afirmaciones de impacto con fuentes","Evita generalizaciones absolutas sin evidencia","Mantiene tono objetivo y académico"]
+},
+{
+ id:"objectives",name:"Objetivo general y objetivos específicos",points:15,words:"Un objetivo general y de 3 a 5 específicos",
+ description:"Definen qué realizará el estudio. Deben ser claros, viables, observables y congruentes con la pregunta.",
+ include:["Objetivo general con verbo en infinitivo","Objeto o fenómeno sobre el que recae la acción","Finalidad o alcance del estudio","Objetivos específicos ordenados lógica o metodológicamente","Correspondencia con etapas de la investigación"],
+ questions:["¿Qué acción principal se realizará?","¿Sobre qué objeto o fenómeno?","¿Para qué se realizará?","¿Cada objetivo específico contribuye al general?","¿Los objetivos pueden verificarse mediante resultados?"],
+ checks:["El objetivo general inicia con verbo en infinitivo","Evita verbos vagos como conocer o saber, salvo justificación","Es alcanzable con la metodología propuesta","Los específicos son entre 3 y 5","No repiten el objetivo general","Siguen una secuencia lógica","Son congruentes con la pregunta y el problema","No incluyen actividades administrativas como leer o buscar"],
+ apa:["Mantiene estructura gramatical paralela","Usa los mismos conceptos y denominaciones en todo el protocolo"]
+},
+{
+ id:"framework",name:"Marco teórico, conceptual y antecedentes",points:15,words:"3,000 a 5,000 palabras sugeridas",
+ description:"Fundamenta el estudio mediante teorías, conceptos, normatividad y antecedentes relevantes, organizados con análisis crítico.",
+ include:["Conceptos centrales definidos","Teorías o modelos pertinentes","Investigaciones nacionales e internacionales","Normatividad aplicable, cuando corresponda","Relación entre autores y posturas","Síntesis crítica y vínculo con el problema","Definición conceptual de variables o categorías"],
+ questions:["¿Qué conceptos necesita comprender el lector?","¿Qué teorías explican el fenómeno?","¿Qué han encontrado investigaciones previas?","¿En qué coinciden o difieren los autores?","¿Qué vacío permanece?","¿Cómo sustenta este marco la metodología?"],
+ checks:["Incluye fuentes pertinentes y suficientes","Organiza los temas de lo general a lo particular","Relaciona autores en lugar de enumerarlos","Distingue marco teórico, conceptual y normativo","Incluye estudios recientes","Integra fuentes clásicas cuando son indispensables","Define variables o categorías centrales","Concluye con una síntesis vinculada al estudio"],
+ apa:["Aplica citas narrativas y parentéticas correctamente","Incluye et al. conforme a APA 7","Evita cadenas de citas sin análisis propio","Usa DOI en formato URL cuando exista","Verifica correspondencia entre citas y referencias","Prioriza paráfrasis académica sobre citas textuales extensas"]
+},
+{
+ id:"method",name:"Metodología",points:20,words:"1,200 a 2,000 palabras sugeridas",
+ description:"Explica de manera reproducible cómo se desarrollará la investigación y cómo se analizarán los datos.",
+ include:["Enfoque: cuantitativo, cualitativo o mixto","Alcance y diseño","Unidad de análisis, población o caso","Muestra y procedimiento de selección, cuando aplique","Variables, categorías, dimensiones o indicadores","Técnicas e instrumentos de recolección","Validez, confiabilidad o criterios de rigor","Procedimiento por etapas","Plan de análisis de datos","Cronograma y recursos","Consideraciones éticas"],
+ questions:["¿Cómo se realizará el estudio?","¿Quiénes o qué unidades serán analizadas?","¿Cómo se seleccionarán?","¿Qué datos se necesitan?","¿Con qué instrumentos se obtendrán?","¿Cómo se comprobará la calidad de los instrumentos?","¿Cómo se analizarán los datos?","¿La metodología permite responder la pregunta?"],
+ checks:["Declara y justifica el enfoque","Define alcance y diseño","Describe población, muestra o caso","Explica criterios de inclusión y exclusión","Identifica variables o categorías","Describe instrumentos y su aplicación","Explica validez, confiabilidad o rigor","Presenta procedimiento ordenado","Define técnicas de análisis","Incluye cronograma viable","Incluye aspectos éticos y manejo de datos","Es congruente con objetivos y pregunta"],
+ apa:["Describe instrumentos de terceros con su cita correspondiente","Presenta tablas o figuras metodológicas con número, título y nota","Usa unidades, símbolos y abreviaturas de forma consistente"]
+},
+{
+ id:"ethics",name:"Ética, integridad académica y uso de IA",points:5,words:"Apartado específico o integración explícita en metodología",
+ description:"Protege a participantes, datos y autorías, y declara de manera transparente el uso de herramientas digitales o de inteligencia artificial.",
+ include:["Consentimiento informado, cuando aplique","Confidencialidad y anonimización","Resguardo y tratamiento de datos","Riesgos y beneficios","Permisos institucionales","Reconocimiento correcto de autorías","Declaración del uso de IA, si se utilizó"],
+ questions:["¿Existen riesgos para participantes o instituciones?","¿Cómo se protegerán datos e identidades?","¿Se requieren permisos o consentimiento?","¿Se distingue claramente el trabajo del autor del apoyo tecnológico?","¿Las fuentes pueden verificarse?"],
+ checks:["Describe medidas de confidencialidad","Explica consentimiento o permisos","Define resguardo de datos","Reconoce propiedad intelectual","Evita plagio y fabricación de fuentes","Declara el uso de IA cuando corresponda","Verifica referencias sugeridas por herramientas de IA"],
+ apa:["Toda idea ajena debe atribuirse","Las herramientas de IA no sustituyen la responsabilidad autoral","No deben citarse fuentes inexistentes o no consultadas"]
+},
+{
+ id:"references",name:"Citas y referencias",points:5,words:"Cantidad suficiente según el alcance del protocolo",
+ description:"Las fuentes son pertinentes, verificables y están presentadas con correspondencia exacta entre citas y lista de referencias.",
+ include:["Fuentes académicas, normativas y oficiales pertinentes","Referencias recientes y fuentes fundamentales","DOI o URL cuando corresponda","Datos completos de autor, fecha, título y fuente"],
+ questions:["¿Cada cita aparece en referencias?","¿Cada referencia fue citada en el texto?","¿Las fuentes son académicas y verificables?","¿Los datos bibliográficos están completos?","¿Se priorizan fuentes primarias?"],
+ checks:["Lista ordenada alfabéticamente","Aplica sangría francesa","Existe correspondencia cita-referencia","Incluye DOI en formato https://doi.org/... cuando existe","Los títulos usan mayúsculas y cursivas según el tipo de fuente","Evita referencias duplicadas","No incluye fuentes no consultadas","Las URL son funcionales cuando se requieren"],
+ apa:["No se exige eliminar hipervínculos; APA 7 presenta DOI y URL como enlaces","No se coloca punto después de DOI o URL","La sangría francesa es de 1.27 cm","Se conserva el orden alfabético por apellido del primer autor"]
+},
+{
+ id:"format",name:"Redacción, estructura y formato APA 7",points:5,words:"Aplicable a todo el documento",
+ description:"El protocolo presenta estructura coherente, lenguaje académico, buena legibilidad y formato uniforme.",
+ include:["Organización mediante encabezados","Párrafos cohesionados","Ortografía y sintaxis correctas","Tablas y figuras legibles","Formato uniforme en todo el documento"],
+ questions:["¿El texto se comprende con facilidad?","¿Cada párrafo desarrolla una idea central?","¿Los encabezados reflejan la jerarquía del contenido?","¿Las tablas y figuras aportan información?","¿El formato es consistente?"],
+ checks:["Papel tamaño carta, si así lo exige la institución","Márgenes de 2.54 cm","Fuente legible permitida por APA 7, por ejemplo Times New Roman 12, Arial 11, Calibri 11 o Georgia 11","Interlineado doble, salvo excepciones justificadas","Texto alineado a la izquierda","Sangría de primera línea de 1.27 cm","Número de página en el encabezado","Encabezados jerarquizados conforme a APA 7","Tablas y figuras numeradas, tituladas y con nota cuando aplica","Lenguaje claro, preciso, respetuoso e inclusivo","Sin errores ortográficos recurrentes"],
+ apa:["APA 7 permite varias fuentes legibles; debe usarse una sola de manera consistente","No se justifica el texto en el formato APA estándar","Los títulos de tablas van arriba y las notas debajo","Los títulos de figuras van arriba y las notas debajo en APA 7"]
+}
+];
+
+let active=[];
+
+function wordCount(text){return (text.trim().match(/\S+/g)||[]).length}
+function updateTitleCounter(){
+ const n=wordCount(document.getElementById("projectTitle").value);
+ const el=document.getElementById("titleCounter");
+ el.textContent=`${n} de 25 palabras`;
+ el.className="counter "+(n<=25?"ok":"bad");
+}
+
+function render(){
+ const mod=document.getElementById("modality").value;
+ const box=document.getElementById("rubric");
+ box.innerHTML="";
+ if(!mod){active=[];document.getElementById("modalityInfo").textContent="Selecciona una modalidad para iniciar la evaluación.";updateStatus();return}
+ active=criteria;
+ document.getElementById("modalityInfo").innerHTML=`<strong>${modalities[mod].label}:</strong> ${modalities[mod].info}<br><strong>Revisión específica:</strong> ${modalities[mod].special}`;
+ active.forEach((c,i)=>{
+   const el=document.createElement("article");
+   el.className="criterion";
+   el.innerHTML=`
+   <div class="criterion-head">
+     <div><div class="criterion-title">${i+1}. ${c.name}</div><div class="hint">${c.description}</div><span class="word-range">${c.words}</span></div>
+     <div class="badge">${c.points} puntos</div>
+   </div>
+   <div class="criterion-body">
+     <div class="info-grid">
+       <div class="info-box"><h4>¿Qué debe incluir?</h4><ul>${c.include.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+       <div class="info-box"><h4>Preguntas que debe responder</h4><ul>${c.questions.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+       <div class="info-box"><h4>Orientaciones APA 7</h4><ul>${c.apa.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+       <div class="info-box"><h4>Lista de cotejo</h4><div class="checks">${c.checks.map((x,j)=>`<label class="check"><input type="checkbox" id="chk-${c.id}-${j}" onchange="updateStatus()"><span>${x}</span></label>`).join("")}</div></div>
+     </div>
+     <div class="levels">
+       ${levels.map(l=>`<label class="level" id="level-${c.id}-${l.v}"><input type="radio" name="score-${c.id}" value="${l.v}" onchange="selectLevel('${c.id}',${l.v});calculate(false);updateStatus()"><strong>${l.name} (${l.v})</strong><small>${l.text}</small></label>`).join("")}
+     </div>
+     <div class="comment-grid">
+       <div><label>¿Qué cumple correctamente?</label><textarea id="good-${c.id}" placeholder="Describe evidencias concretas del documento."></textarea></div>
+       <div><label>¿Qué debe corregir o agregar?</label><textarea id="improve-${c.id}" placeholder="Indica el cambio requerido y cómo realizarlo."></textarea></div>
+     </div>
+   </div>`;
+   box.appendChild(el);
+ });
+ updateStatus();
+}
+
+function selectLevel(id,v){
+ levels.forEach(l=>{
+   const e=document.getElementById(`level-${id}-${l.v}`);
+   if(e)e.classList.toggle("selected",l.v===v);
+ });
+}
+
+function calculate(show){
+ if(!active.length){if(show)alert("Selecciona una modalidad.");return 0}
+ let total=0,answered=0;
+ active.forEach(c=>{
+   const r=document.querySelector(`input[name="score-${c.id}"]:checked`);
+   if(r){answered++;total+=(Number(r.value)/4)*c.points}
+ });
+ const s=Math.round(total);
+ document.getElementById("score").textContent=s;
+ document.getElementById("bar").style.width=s+"%";
+ let cl="Evaluación incompleta";
+ if(answered===active.length){
+   cl=s>=90?"Excelente":s>=80?"Satisfactorio":s>=70?"Requiere ajustes":"Insuficiente";
+ }
+ document.getElementById("classification").textContent=answered?cl:"Sin evaluar";
+ if(show&&answered<active.length)alert(`Faltan ${active.length-answered} criterios por calificar.`);
+ return s;
+}
+
+function updateStatus(){
+ const rated=active.filter(c=>document.querySelector(`input[name="score-${c.id}"]:checked`)).length;
+ let totalChecks=0,marked=0;
+ active.forEach(c=>c.checks.forEach((_,j)=>{totalChecks++;if(document.getElementById(`chk-${c.id}-${j}`)?.checked)marked++}));
+ document.getElementById("completion").textContent=`Criterios calificados: ${rated} de ${active.length}`;
+ document.getElementById("checkCompletion").textContent=`Elementos de cotejo marcados: ${marked} de ${totalChecks}`;
+}
+
+function data(){
+ const mod=document.getElementById("modality").value;
+ return{
+  reviewerName:reviewerName.value.trim(),reviewerCode:reviewerCode.value.trim(),reviewerEmail:reviewerEmail.value.trim(),
+  reviewedName:reviewedName.value.trim(),reviewedCode:reviewedCode.value.trim(),advisor:advisor.value.trim(),
+  group:group.value.trim(),researchLine:researchLine.value.trim(),date:date.value,
+  modality:mod,modalityLabel:mod?modalities[mod].label:"",projectTitle:projectTitle.value.trim(),
+  strengths:strengths.value.trim(),improvements:improvements.value.trim(),recommendations:recommendations.value.trim(),ethical:ethical.value.trim(),
+  score:calculate(false),classification:classification.textContent,
+  criteria:active.map(c=>{
+    const r=document.querySelector(`input[name="score-${c.id}"]:checked`);
+    return{
+      id:c.id,name:c.name,points:c.points,level:r?Number(r.value):null,
+      checks:c.checks.map((x,j)=>({text:x,checked:document.getElementById(`chk-${c.id}-${j}`)?.checked||false})),
+      good:document.getElementById(`good-${c.id}`)?.value.trim()||"",
+      improve:document.getElementById(`improve-${c.id}`)?.value.trim()||""
+    }
+  })
+ }
+}
+
+function validate(d){
+ const missing=[];
+ if(!d.reviewerName)missing.push("nombre del alumno revisor");
+ if(!d.reviewedName)missing.push("nombre del alumno evaluado");
+ if(!d.modality)missing.push("modalidad de titulación");
+ if(!d.projectTitle)missing.push("título provisional");
+ if(wordCount(d.projectTitle)>25)missing.push("reducir el título a máximo 25 palabras");
+ const noRate=d.criteria.filter(c=>c.level===null).length;
+ if(noRate)missing.push(`${noRate} criterios sin calificación`);
+ if(missing.length){alert("Completa o corrige lo siguiente:\n- "+missing.join("\n- "));return false}
+ return true;
+}
+
+function saveDraft(){
+ localStorage.setItem("rubricaAPA7Protocolos",JSON.stringify(data()));
+ alert("Borrador guardado en este navegador.");
+}
+
+function loadDraft(){
+ const raw=localStorage.getItem("rubricaAPA7Protocolos");if(!raw)return;
+ try{
+  const d=JSON.parse(raw);
+  ["reviewerName","reviewerCode","reviewerEmail","reviewedName","reviewedCode","advisor","group","researchLine","date","projectTitle","strengths","improvements","recommendations","ethical"].forEach(id=>{if(d[id]!==undefined)document.getElementById(id).value=d[id]});
+  if(d.modality){modality.value=d.modality;render();
+   setTimeout(()=>{(d.criteria||[]).forEach(sc=>{
+    const c=active.find(x=>x.id===sc.id);if(!c)return;
+    if(sc.level){const r=document.querySelector(`input[name="score-${c.id}"][value="${sc.level}"]`);if(r){r.checked=true;selectLevel(c.id,sc.level)}}
+    (sc.checks||[]).forEach((ch,j)=>{const e=document.getElementById(`chk-${c.id}-${j}`);if(e)e.checked=!!ch.checked});
+    const g=document.getElementById(`good-${c.id}`),im=document.getElementById(`improve-${c.id}`);
+    if(g)g.value=sc.good||"";if(im)im.value=sc.improve||"";
+   });updateTitleCounter();updateStatus();calculate(false)},0);
+  }
+ }catch(e){}
+}
+
+function resetAll(){if(confirm("¿Deseas borrar toda la información capturada?")){localStorage.removeItem("rubricaAPA7Protocolos");location.reload()}}
+
+function addText(doc,text,x,y,width,line=4.3){
+ const lines=doc.splitTextToSize(text||"Sin información.",width);doc.text(lines,x,y);return y+lines.length*line
+}
+
+function downloadPDF(){
+ const d=data();if(!validate(d))return;
+ const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4"});
+ const margin=14,W=182;let y=15;
+ const ensure=(h=25)=>{if(y+h>282){doc.addPage();y=15}};
+ doc.setFillColor(123,30,58);doc.rect(0,0,210,28,"F");
+ doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(15);doc.text("Rúbrica APA 7 de revisión por pares",margin,12);
+ doc.setFont("helvetica","normal");doc.setFontSize(9.5);doc.text("Primera versión del protocolo de titulación",margin,20);
+ doc.setTextColor(32,38,51);y=36;
+ doc.setFont("helvetica","bold");doc.setFontSize(11);doc.text("Datos de identificación",margin,y);y+=7;
+ const fields=[["Alumno revisor",d.reviewerName],["Código",d.reviewerCode||"No especificado"],["Correo",d.reviewerEmail||"No especificado"],["Alumno evaluado",d.reviewedName],["Código del evaluado",d.reviewedCode||"No especificado"],["Asesor",d.advisor||"No especificado"],["Grupo",d.group||"No especificado"],["Línea",d.researchLine||"No especificada"],["Fecha",d.date||"No especificada"],["Modalidad",d.modalityLabel],["Título",d.projectTitle]];
+ doc.setFontSize(8.8);
+ fields.forEach(([k,v])=>{ensure(8);doc.setFont("helvetica","bold");doc.text(k+":",margin,y);doc.setFont("helvetica","normal");y=addText(doc,v,margin+38,y,W-38,4);y+=1.7});
+ ensure(22);doc.setFillColor(17,24,39);doc.roundedRect(margin,y,W,18,3,3,"F");doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(13);doc.text(`Calificación: ${d.score}/100`,margin+6,y+8);doc.setFontSize(10);doc.text(`Clasificación: ${d.classification}`,margin+6,y+14);doc.setTextColor(32,38,51);y+=25;
+ d.criteria.forEach((c,i)=>{
+  ensure(38);doc.setFillColor(248,250,252);doc.setDrawColor(216,222,232);doc.roundedRect(margin,y,W,10,2,2,"FD");
+  doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(`${i+1}. ${c.name}`,margin+3,y+6.5);doc.text(`${c.level}/4`,190,y+6.5);y+=14;
+  doc.setFont("helvetica","normal");doc.setFontSize(8.2);
+  const checked=c.checks.filter(x=>x.checked).map(x=>"• "+x.text).join("\n")||"Ningún elemento marcado.";
+  y=addText(doc,"Elementos verificados:\n"+checked,margin+2,y,W-4,3.8);y+=3;
+  y=addText(doc,"Cumple correctamente: "+(c.good||"Sin observaciones."),margin+2,y,W-4,3.8);y+=3;
+  y=addText(doc,"Debe corregir o agregar: "+(c.improve||"Sin observaciones."),margin+2,y,W-4,3.8);y+=5;
+ });
+ [["Fortalezas principales",d.strengths],["Aspectos prioritarios por mejorar",d.improvements],["Recomendaciones específicas",d.recommendations],["Ética, citación y uso de IA",d.ethical]].forEach(([t,v])=>{
+  ensure(20);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(t,margin,y);y+=6;doc.setFont("helvetica","normal");doc.setFontSize(8.5);y=addText(doc,v||"Sin observaciones.",margin,y,W,4);y+=5
+ });
+ ensure(25);doc.setFont("helvetica","bold");doc.setFontSize(9);doc.text("Nombre o firma del alumno revisor:",margin,y);y+=10;doc.line(margin,y,95,y);doc.text("Fecha:",115,y-10);doc.line(115,y,190,y);
+ const safe=(d.reviewedName||"alumno").replace(/[^\wáéíóúüñÁÉÍÓÚÜÑ-]+/g,"_");
+ doc.save(`Rubrica_APA7_${safe}.pdf`);
+}
+
+document.getElementById("modality").addEventListener("change",render);
+document.getElementById("projectTitle").addEventListener("input",updateTitleCounter);
+document.getElementById("date").valueAsDate=new Date();
+window.addEventListener("load",()=>{updateTitleCounter();loadDraft()});
+</script>
+</body>
+</html>
